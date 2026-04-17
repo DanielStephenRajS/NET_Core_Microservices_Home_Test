@@ -1,0 +1,64 @@
+<Solution>
+  <Folder Name="/APIGateway/">
+    <Project Path="src/APIGateway/ApiGateway/ApiGateway.csproj" Id="cdf08230-67e1-4857-8cfc-8da945765edf" />
+  </Folder>
+  <Folder Name="/Contract/" />
+  <Folder Name="/Contract/Events/">
+    <Project Path="src/Contract/ServiceContracts/ServiceContracts.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/" />
+  <Folder Name="/Microservices/NotificationService/" />
+  <Folder Name="/Microservices/NotificationService/src/" />
+  <Folder Name="/Microservices/NotificationService/src/Application/">
+    <Project Path="src/Notification/NotificationService.App/NotificationService.App.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/NotificationService/src/Domain/">
+    <Project Path="src/Notification/NotificationService.Domain/NotificationService.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/NotificationService/src/Infrastructure/">
+    <Project Path="src/Notification/NotificationService.Infra/NotificationService.Infra.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/NotificationService/src/Presentation/">
+    <Project Path="src/Notification/NotificationServiceApi/NotificationServiceApi.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/NotificationService/test/">
+    <Project Path="src/Notification/NotificationServiceTests/NotificationServiceTests.csproj" Id="5689f24c-54dd-4825-99cf-76c6beced58a" />
+  </Folder>
+  <Folder Name="/Microservices/OrderService/" />
+  <Folder Name="/Microservices/OrderService/src/" />
+  <Folder Name="/Microservices/OrderService/src/Application/">
+    <Project Path="src/Order/OrderService.App/OrderService.App.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/OrderService/src/Domain/">
+    <Project Path="src/Order/OrderService.Domain/OrderService.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/OrderService/src/Infrastructure/">
+    <Project Path="src/Order/OrderService.Infra/OrderService.Infra.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/OrderService/src/Presentation/">
+    <Project Path="src/Order/OrderServiceApi/OrderServiceApi.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/OrderService/test/">
+    <Project Path="src/Order/OrderServiceTest/OrderServiceTest.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/PaymentService/" />
+  <Folder Name="/Microservices/PaymentService/src/" />
+  <Folder Name="/Microservices/PaymentService/src/Application/">
+    <Project Path="src/Payment/PaymentService.App/PaymentService.App.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/PaymentService/src/Domain/">
+    <Project Path="src/Payment/PaymentService.Domain/PaymentService.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/PaymentService/src/Infrastructure/">
+    <Project Path="src/Payment/PaymentService.Infra/PaymentService.Infra.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/PaymentService/src/Presentation/">
+    <Project Path="src/Payment/PaymentServiceApi/PaymentServiceApi.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/PaymentService/test/">
+    <Project Path="src/Payment/PaymentServiceTests/PaymentServiceTests.csproj" Id="7f7e61cb-929b-49ca-933e-269b8a2c5ad6" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>

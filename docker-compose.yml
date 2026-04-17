@@ -1,0 +1,80 @@
+
+services:
+  orderserviceapi:
+    image: ${DOCKER_REGISTRY-}orderserviceapi
+    build:
+      context: .
+      dockerfile: OrderServiceApi/Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      # RabbitMQ connection settings available to the app at runtime
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+      ASPNETCORE_ENVIRONMENT: Development
+      # Listen on port 80 inside container; map to host below
+      ASPNETCORE_URLS: http://+:80
+    ports:
+      - "5000:80"
+    networks:
+      - orders-network
+
+  paymentserviceapi:
+    image: ${DOCKER_REGISTRY-}paymentserviceapi
+    build:
+      context: .
+      dockerfile: PaymentServiceApi/Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+      ASPNETCORE_ENVIRONMENT: Development
+      # Listen on port 80 inside container; map to host below
+      ASPNETCORE_URLS: http://+:80
+    ports:
+      - "5001:80"
+    networks:
+      - orders-network
+
+  notificationserviceapi:
+    image: ${DOCKER_REGISTRY-}notificationserviceapi
+    build:
+      context: .
+      dockerfile: NotificationServiceApi/Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+      ASPNETCORE_ENVIRONMENT: Development
+      # Listen on port 80 inside container; map to host below
+      ASPNETCORE_URLS: http://+:80
+    ports:
+      - "5002:80"
+    networks:
+      - orders-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    networks:
+      - orders-network
+    restart: unless-stopped
+
+networks:
+  orders-network:
+    driver: bridge

@@ -1,0 +1,23 @@
+# See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile when you build and run in container
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY ["PaymentServiceApi/PaymentServiceApi.csproj", "PaymentServiceApi/"]
+COPY ["PaymentService.App/PaymentService.App.csproj", "PaymentService.App/"]
+COPY ["PaymentService.Domain/PaymentService.Domain.csproj", "PaymentService.Domain/"]
+COPY ["PaymentService.Infra/PaymentService.Infra.csproj", "PaymentService.Infra/"]
+RUN dotnet restore "PaymentServiceApi/PaymentServiceApi.csproj"
+COPY . .
+WORKDIR "/src/PaymentServiceApi"
+RUN dotnet publish "PaymentServiceApi.csproj" -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:80
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "PaymentServiceApi.dll"]
