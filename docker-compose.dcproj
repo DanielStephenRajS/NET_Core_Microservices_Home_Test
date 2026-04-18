@@ -14,5 +14,7 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="ENVIRONMENT_SETUP.md" />
+    <None Include="QUICKSTART.md" />
   </ItemGroup>
 </Project>

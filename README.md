@@ -1,10 +1,12 @@
 # Order Processing System
 
-A microservices-based order processing system built with .NET 10 that demonstrates event-driven architecture using RabbitMQ for asynchronous communication between services.
+A microservices-based order processing system built with .NET 8/10 that demonstrates event-driven architecture using RabbitMQ for asynchronous communication between services.
 
 ## Overview
 
 This system handles the complete order lifecycle - from order creation to payment processing and customer notifications. It's designed with a microservices architecture where each service is independently deployable and communicates through message queues.
+
+**Framework Support:** This project supports both .NET 8 and .NET 10 through multi-targeting, ensuring compatibility with Visual Studio 2022 and Visual Studio 2026.
 
 ## Architecture
 
@@ -103,14 +105,37 @@ OrderProcessingSystem/
 
 ### Prerequisites
 
-- .NET 10 SDK
-- Visual Studio 2026 or VS Code
+- **.NET 8 SDK** or **.NET 10 SDK**
+  - This project supports both .NET 8 and .NET 10 through multi-targeting
+  - **Visual Studio 2022**: Automatically uses .NET 8
+  - **Visual Studio 2026**: Automatically uses .NET 10
+- Visual Studio 2022/2026 or VS Code
 
 ### Quick Start (Recommended - Works on All Laptops)
 
 **Why CloudAMQP?** Some laptops have restrictions (no Docker, proxy issues, installation restrictions). CloudAMQP solves this by providing cloud-based RabbitMQ with a free tier.
 
-#### 1. Setup CloudAMQP (One-time, Free)
+#### 1. Get RabbitMQ Password from Email
+
+**📧 IMPORTANT - First Time Setup:**
+
+1. **Check your email** for the RabbitMQ password. It was sent separately for security reasons.
+2. The email contains your **RabbitMQ Password** that you'll need to configure.
+
+⚠️ Only use this for local testing. Never commit passwords to Git!
+
+Edit the following files and replace the empty password:
+- `src/Order/OrderServiceApi/appsettings.json`
+- `src/Payment/PaymentServiceApi/appsettings.json`
+- `src/Notification/NotificationServiceApi/appsettings.json`
+
+```json
+"RabbitMQ": {
+  "Password": "YOUR_PASSWORD_FROM_EMAIL"
+}
+```
+
+#### 2. Setup CloudAMQP (One-time, Free) ( Not required it is already setup for you)
 
 1. Sign up at https://www.cloudamqp.com/
 2. Create new instance → Choose **Little Lemur (Free)** → Region: **Tokyo** → Create
@@ -121,7 +146,7 @@ OrderProcessingSystem/
 - Payment Service → publishes PaymentProcessedEvent → Notification Service consumes it
 - Messages wait in queues if a service is down, ensuring reliability
 
-#### 2. Run the Services
+#### 3. Run the Services
 
 **Using Visual Studio:**
 1. Right-click solution → **Configure Startup Projects**
@@ -229,8 +254,22 @@ cd src\Notification\NotificationServiceTests && dotnet test
 
 ## Troubleshooting
 
+**Can't find the password email?**
+- Check your spam/junk folder
+- Contact the project administrator to resend the RabbitMQ credentials
+
+**Error: "RabbitMQ password is not configured"**
+- Solution: You haven't set up the password yet. Follow Step 2 in the Quick Start section above.
+- Verify User Secrets are set:
+  ```powershell
+  cd src\Order\OrderServiceApi
+  dotnet user-secrets list
+  # Should show: RabbitMQ:Password = your-password
+  ```
+
 **Services can't connect:**
 - Check `appsettings.json` RabbitMQ settings
+- Verify the password is correctly configured (see Step 2 above)
 - Verify CloudAMQP instance is running
 - Check internet connectivity
 
