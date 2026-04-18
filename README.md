@@ -104,106 +104,57 @@ OrderProcessingSystem/
 ### Prerequisites
 
 - .NET 10 SDK
-- Docker Desktop (for containerized deployment)
-- Visual Studio 2026 or VS Code (optional, for development)
+- Visual Studio 2026 or VS Code
 
-### Running Locally (Without Docker)
+### Quick Start (Recommended - Works on All Laptops)
 
-#### Option 1: Using Visual Studio (Recommended)
+**Why CloudAMQP?** Some laptops have restrictions (no Docker, proxy issues, installation restrictions). CloudAMQP solves this by providing cloud-based RabbitMQ with a free tier.
 
-This is the simplest way to run all services locally.
+#### 1. Setup CloudAMQP (One-time, Free)
 
-1. **Start RabbitMQ**
-   ```bash
-   docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-   ```
+1. Sign up at https://www.cloudamqp.com/
+2. Create new instance → Choose **Little Lemur (Free)** → Region: **Tokyo** → Create
+3. Configuration files are already updated with credentials
 
-2. **Configure Multiple Startup Projects in Visual Studio**
-   - Right-click on the solution in Solution Explorer
-   - Select **"Configure Startup Projects..."**
-   - Choose **"Multiple startup projects"**
-   - Set the following projects to **"Start"**:
-     - `OrderServiceApi`
-     - `PaymentServiceApi`
-     - `NotificationServiceApi`
-     - `ApiGateway`
-   - Click **OK**
+**AMQP (Advanced Message Queuing Protocol)** routes messages between services:
+- Order Service → publishes OrderCreatedEvent → Payment Service consumes it
+- Payment Service → publishes PaymentProcessedEvent → Notification Service consumes it
+- Messages wait in queues if a service is down, ensuring reliability
 
-3. **Run the Solution**
-   - Press **F5** or click the **Start** button
-   - Visual Studio will launch all four services simultaneously
-   - Each service will open in its own console window
+#### 2. Run the Services
 
-4. **Verify services are running**:
-   - Order Service: http://localhost:5020/health
-   - Payment Service: http://localhost:5232/health
-   - Notification Service: http://localhost:5196/health
-   - API Gateway: http://localhost:5000
-   - RabbitMQ Management: http://localhost:15672
+**Using Visual Studio:**
+1. Right-click solution → **Configure Startup Projects**
+2. Select **Multiple startup projects**
+3. Set these to **Start**:
+   - `OrderServiceApi`
+   - `PaymentServiceApi`
+   - `NotificationServiceApi`
+   - `ApiGateway`
+4. Press **F5**
 
-#### Option 2: Using Command Line
+**Access URLs:**
+- API Gateway: http://localhost:5000
+- Order Service: http://localhost:5020 (Swagger: http://localhost:5020/swagger)
+- Payment Service: http://localhost:5232 (Swagger: http://localhost:5232/swagger)
+- Notification Service: http://localhost:5196 (Swagger: http://localhost:5196/swagger)
+- CloudAMQP Management: Login at cloudamqp.com
 
-If you prefer using the terminal or don't have Visual Studio:
+### Alternative: Using Local Docker
 
-1. **Start RabbitMQ**
-   ```bash
-   docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-   ```
-
-2. **Start each service** (open separate terminals):
-
-   ```bash
-   # Terminal 1 - Order Service
-   cd src\Order\OrderServiceApi
-   dotnet run
-   ```
-
-   ```bash
-   # Terminal 2 - Payment Service
-   cd src\Payment\PaymentServiceApi
-   dotnet run
-   ```
-
-   ```bash
-   # Terminal 3 - Notification Service
-   cd src\Notification\NotificationServiceApi
-   dotnet run
-   ```
-
-   ```bash
-   # Terminal 4 - API Gateway
-   cd src\APIGateway\ApiGateway
-   dotnet run
-   ```
-
-3. **Verify services are running**: Same as Option 1 above
-
-### Running with Docker Compose
-
-This is the easiest way to run the entire system:
+If you have Docker Desktop installed:
 
 ```bash
-# Build and start all services
 docker-compose up --build
-
-# Or run in detached mode
-docker-compose up -d --build
-
-# Stop all services
-docker-compose down
 ```
 
-Docker Compose will start:
-- Order Service on port 5000
-- Payment Service on port 5001
-- Notification Service on port 5002
-- RabbitMQ on ports 5672 and 15672
+Services will start on ports 5000-5002.
 
 ## API Endpoints
 
-All requests go through the API Gateway at `http://localhost:5000`
+All requests go through API Gateway: `http://localhost:5000`
 
-### Create Order
+**Create Order:**
 ```http
 POST http://localhost:5000/order-service/api/order/CreateOrder
 Content-Type: application/json
@@ -216,149 +167,79 @@ Content-Type: application/json
 }
 ```
 
-### Get All Orders
-```http
-GET http://localhost:5000/order-service/api/order/GetOrders
-```
+**Get Data:**
+- Orders: `GET http://localhost:5000/order-service/api/order/GetOrders`
+- Payments: `GET http://localhost:5000/payment-service/api/payment/GetPayments`
+- Notifications: `GET http://localhost:5000/notification-service/api/notification/GetNotifications`
 
-### Get All Payments
-```http
-GET http://localhost:5000/payment-service/api/payment/GetPayments
-```
-
-### Get All Notifications
-```http
-GET http://localhost:5000/notification-service/api/notification/GetNotifications
-```
-
-### Health Checks
-```http
-GET http://localhost:5000/order-service/health
-GET http://localhost:5000/payment-service/health
-GET http://localhost:5000/notification-service/health
-```
-
-### Swagger Documentation
-- Order Service: http://localhost:5000/order-service/swagger/index.html
-- Payment Service: http://localhost:5000/payment-service/swagger/index.html
-- Notification Service: http://localhost:5000/notification-service/swagger/index.html
+**Health Checks:**
+- `GET http://localhost:5000/order-service/health`
+- `GET http://localhost:5000/payment-service/health`
+- `GET http://localhost:5000/notification-service/health`
 
 ## Design Decisions
 
-### Architecture Patterns
+**Architecture:**
+- CQRS with MediatR (Order Service)
+- Event-Driven Architecture (async messaging)
+- Clean Architecture (layered structure)
+- Repository Pattern (data abstraction)
 
-- **CQRS with MediatR**: Order Service uses CQRS to separate read and write operations, making the code easier to maintain and scale.
+**Tech Stack:**
+- MassTransit (RabbitMQ abstraction with retry & error handling)
+- EF Core In-Memory DB (for simplicity, use SQL/PostgreSQL in production)
+- Ocelot API Gateway
+- CloudAMQP (managed RabbitMQ service)
 
-- **Event-Driven Architecture**: Services communicate asynchronously through RabbitMQ, ensuring loose coupling and resilience.
-
-- **Clean Architecture**: Each service follows a layered architecture (API → Application → Domain → Infrastructure) for better separation of concerns.
-
-- **Repository Pattern**: Data access is abstracted through repository interfaces, making it easy to swap out data stores.
-
-### Technology Choices
-
-- **MassTransit**: Provides a powerful abstraction over RabbitMQ with retry policies, error handling, and message routing.
-
-- **In-Memory Database**: Using EF Core In-Memory database for simplicity. In production, this would be replaced with SQL Server, PostgreSQL, or another persistent database.
-
-- **Ocelot API Gateway**: Lightweight and configurable gateway suitable for .NET microservices.
-
-- **AutoMapper**: Used for object-to-object mapping. *(Note: The current version has known security vulnerabilities. In production, always ensure NuGet packages are up-to-date and vulnerability-free.)*
-
-### Design Assumptions
-
-- Order IDs are randomly generated (1-1000 range). In production, use database auto-increment or a distributed ID generator.
-- Email notifications are simulated (logged only). Real implementation would integrate with SendGrid, AWS SES, or similar.
-- All services use in-memory databases that reset on restart. Production would require persistent storage.
-- RabbitMQ runs with default credentials. Production should use proper authentication and TLS.
-- No authentication/authorization is implemented. Production APIs should use OAuth2/JWT tokens.
+**Note:** In production, replace in-memory DB with persistent storage, add authentication, and keep packages updated.
 
 ## Known Limitations & Future Improvements
 
-### Current Limitations
+**Current Limitations:**
+- Code duplication (middleware across services)
+- In-memory storage (data lost on restart)
+- Basic error handling
+- Package vulnerabilities (AutoMapper)
 
-1. **Code Duplication**: Exception handling middleware is duplicated across all three services. This could be moved to a shared NuGet package or common library.
-
-2. **In-Memory Storage**: Data is lost when services restart. Should be replaced with persistent databases (SQL Server, PostgreSQL, MongoDB, etc.).
-
-3. **Limited Error Handling**: Basic error handling exists, but needs more sophisticated retry policies, circuit breakers (Polly), and dead-letter queues.
-
-4. **Package Vulnerabilities**: AutoMapper package has known vulnerabilities. Should be updated or replaced in production environments.
-
-5. **Hard-coded Configuration**: Some settings are hard-coded. Should use Azure Key Vault or similar for secrets management.
-
-### Future Enhancements
-
-- **Database Per Service**: Implement SQL Server for Order Service, PostgreSQL for Payment Service, and MongoDB for Notification Service to demonstrate polyglot persistence.
-
-- **API Authentication**: Add JWT-based authentication and role-based authorization.
-
-- **Saga Pattern**: Implement distributed transactions using MassTransit Sagas for more complex workflows (e.g., order cancellation, refunds).
-
-- **Observability**: 
-  - Add structured logging with Serilog
-  - Implement distributed tracing (Jaeger/OpenTelemetry)
-  - Add metrics and monitoring (Prometheus/Grafana)
-
-- **Resilience Patterns**:
-  - Circuit breakers using Polly
-  - Retry policies with exponential backoff
-  - Bulkhead isolation
-  - Timeout policies
-
-- **Testing**:
-  - Integration tests using TestContainers
-  - Contract testing for event schemas
-  - Load testing with k6 or JMeter
-
-- **Deployment**:
-  - Kubernetes manifests for orchestration
-  - Helm charts for easier deployment
-  - CI/CD pipelines (GitHub Actions/Azure DevOps)
-
-- **Common Library**: Extract shared code (middleware, DTOs, extensions, configurations) into a shared NuGet package to reduce duplication.
+**Future Enhancements:**
+- Persistent databases (SQL Server, PostgreSQL, MongoDB)
+- JWT authentication & authorization
+- Saga pattern for complex workflows
+- Observability (Serilog, OpenTelemetry, Prometheus)
+- Resilience patterns (Polly circuit breakers, retry policies)
+- Integration & load tests
+- Kubernetes deployment with CI/CD
 
 ## Testing
 
-Run tests for individual services:
-
 ```bash
-# Order Service tests
-cd src\Order\OrderServiceTest
+# Run all tests
 dotnet test
 
-# Payment Service tests
-cd src\Payment\PaymentServiceTests
-dotnet test
-
-# Notification Service tests
-cd src\Notification\NotificationServiceTests
-dotnet test
+# Or run individually
+cd src\Order\OrderServiceTest && dotnet test
+cd src\Payment\PaymentServiceTests && dotnet test
+cd src\Notification\NotificationServiceTests && dotnet test
 ```
 
 ## Monitoring
 
-- **RabbitMQ Management UI**: http://localhost:15672
-  - Username: guest
-  - Password: guest
-  - Monitor queues, exchanges, and message rates
-
-- **Health Endpoints**: Each service exposes a `/health` endpoint for monitoring.
+- **CloudAMQP UI**: Login at cloudamqp.com → View queues, exchanges, messages
+- **Health Endpoints**: `/health` on each service
 
 ## Troubleshooting
 
-**Services can't connect to RabbitMQ:**
-- Ensure RabbitMQ is running: `docker ps | grep rabbitmq`
-- Check connection settings in `appsettings.json`
-- Verify network connectivity
+**Services can't connect:**
+- Check `appsettings.json` RabbitMQ settings
+- Verify CloudAMQP instance is running
+- Check internet connectivity
 
 **API Gateway returns 503:**
-- Verify downstream services are running
-- Check port configurations in `ocelot.json` match actual service ports
+- Ensure all services are running
+- Check port configurations
 
-**Messages not flowing between services:**
-- Check RabbitMQ management UI for messages in queues
-- Verify consumers are registered and running
+**Messages not flowing:**
+- Check CloudAMQP UI for messages in queues
 - Check service logs for errors
 
 ## Contributing
