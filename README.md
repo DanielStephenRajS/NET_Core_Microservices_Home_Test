@@ -105,8 +105,8 @@ OrderProcessingSystem/
 
 ### Prerequisites
 
-- **.NET 8 SDK** or **.NET 10 SDK**
-  - This project supports both .NET 8 and .NET 10 through multi-targeting
+- **.NET 8 SDK**
+  - This project supports both .NET 8 through multi-targeting
   - **Visual Studio 2022**: Automatically uses .NET 8
   - **Visual Studio 2026**: Automatically uses .NET 10
 - Visual Studio 2022/2026 or VS Code
@@ -158,7 +158,7 @@ Edit the following files and replace the empty password:
    - `ApiGateway`
 4. Press **F5**
 
-**Access URLs:**
+**Access URLs:** 
 - API Gateway: http://localhost:5000
 - Order Service: http://localhost:5020 (Swagger: http://localhost:5020/swagger)
 - Payment Service: http://localhost:5232 (Swagger: http://localhost:5232/swagger)
@@ -175,7 +175,7 @@ docker-compose up --build
 
 Services will start on ports 5000-5002.
 
-## API Endpoints
+## API Endpoints | Use Brunos, PostMan, ThunderClient to test the API
 
 All requests go through API Gateway: `http://localhost:5000`
 
