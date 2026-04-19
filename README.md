@@ -167,7 +167,11 @@ Edit the following files and replace the empty password:
 
 ### Alternative: Using Local Docker
 
-If you have Docker Desktop installed:
+**Note:** The `docker-compose` project is **unloaded by default** in the Visual Studio solution because it requires Docker Desktop to build. Not all systems have Docker Desktop installed. 
+
+If you have Docker Desktop installed and want to use Docker:
+1. In Visual Studio, right-click the solution → **Reload Project** → Select `docker-compose.dcproj`
+2. Run the following command:
 
 ```bash
 docker-compose up --build
