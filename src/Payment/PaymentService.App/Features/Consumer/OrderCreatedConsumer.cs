@@ -48,7 +48,10 @@ namespace PaymentService.App.Features.Consumer
                 Timestamp = payment.Timestamp
             };
 
-            await context.Publish(paymentSucceededEvent, context.CancellationToken);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(15)); // Hang up after 10 seconds like a circuit breaker
+
+            await context.Publish(paymentSucceededEvent, cts.Token);
             _logger.LogInformation("PaymentSucceededEvent published for OrderId={OrderId}, PaymentId={PaymentId}", payment.OrderId, payment.Id);
         }
     }

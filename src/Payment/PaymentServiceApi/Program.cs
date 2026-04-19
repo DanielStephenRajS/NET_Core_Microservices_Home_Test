@@ -45,10 +45,19 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<OrderCreatedConsumer>();
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(rabbitMQSettings.Host, rabbitMQSettings.VirtualHost, h =>
+        cfg.Host(rabbitMQSettings.Host, (ushort)rabbitMQSettings.Port, rabbitMQSettings.VirtualHost, h =>
         {
             h.Username(rabbitMQSettings.Username);
             h.Password(rabbitMQSettings.Password);
+
+            if (rabbitMQSettings.UseSsl)
+            {
+                h.UseSsl(s =>
+                {
+                    s.Protocol = System.Security.Authentication.SslProtocols.Tls12;
+                    s.ServerName = rabbitMQSettings.Host;
+                });
+            }
         });
         cfg.ConfigureEndpoints(context);
     });
