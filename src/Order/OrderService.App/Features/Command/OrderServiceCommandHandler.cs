@@ -41,8 +41,6 @@ namespace OrderService.App.Features.Command
             var orderId = await _orderRepository.CreateOrderAsync(orderEntity, cancellationToken);
             _logger.LogInformation("Order created with Id: {OrderId}", orderId);
 
-            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            cts.CancelAfter(TimeSpan.FromSeconds(15)); // Hang up after 10 seconds like a circuit breaker
 
             // Publish an event to message broker
             await _publishEndpoint.Publish(new OrderCreatedEvent
@@ -50,7 +48,7 @@ namespace OrderService.App.Features.Command
                 OrderId = orderId,
                 Amount = orderEntity.Amount,
                 CustomerEmail = orderEntity.CustomerEmail,
-            }, cts.Token);
+            });
 
             _logger.LogInformation(
            "[OrderService] Order {OrderId} created and event published.", orderId);
@@ -58,4 +56,5 @@ namespace OrderService.App.Features.Command
             return orderId;
         }
     }
+}
 }
